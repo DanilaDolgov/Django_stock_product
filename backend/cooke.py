@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 
-def setcookie(request):
+def set_cookie(request):
     html = HttpResponse("<h1>Dataflair Django Tutorial</h1>")
     if request.COOKIES.get('visits'):
         html.set_cookie('dataflair', 'Welcome Back')
@@ -16,7 +16,7 @@ def setcookie(request):
     return html
 
 
-def showcookie(request):
+def show_cookie(request):
     if request.COOKIES.get('visits') is not None:
         value = request.COOKIES.get('visits')
         text = request.COOKIES.get('dataflair')

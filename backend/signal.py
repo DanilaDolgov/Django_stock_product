@@ -23,7 +23,6 @@ def password_reset_token_created(sender, instance, reset_password_token, **kwarg
     """
     # send an e-mail to the user
 
-
     msg = EmailMultiAlternatives(
         # title:
 

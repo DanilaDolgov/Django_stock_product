@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib import admin
 from django_rest_passwordreset.views import reset_password_request_token, reset_password_confirm
-from backend.cooke import setcookie, showcookie
+from backend.cooke import set_cookie, show_cookie
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, ProductInfoView, ShopView, CategoryView, \
     BasketView, ContactView, OrderView, PartnerOrders
 app_name = 'backend'
@@ -14,8 +14,8 @@ urlpatterns = [
     # path('user/details', AccountDetails.as_view(), name='user-details'),
     path('user/contact', ContactView.as_view(), name='user-contact'),
     path('user/login', LoginAccount.as_view(), name='user-login'),
-    path('setcookie', setcookie),
-    path('getcookie', showcookie),
+    path('setcookie', set_cookie),
+    path('getcookie', show_cookie),
     # path('user/password_reset', reset_password_request_token, name='password-reset'),
     # path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
     path('categories', CategoryView.as_view(), name='categories'),

@@ -33,18 +33,18 @@ import json
 #
 #
 # # ---------------------ORDER-----------------
-url='http://127.0.0.1:8000/order'
-json1={
-
-              "id": 1,
-              "contact": 1,
-
-   }
-print(json.dumps(json1))
-print(json1)
-headers = {"Content-Type": "application/json", "Authorization": "Token 60e7daf91556195e794a9f460655fc5f6c3fc2ff"}
+# url='http://127.0.0.1:8000/order'
+# json1={
 #
-response = requests.post(url, data=json.dumps(json1), headers=headers)
+#               "id": 1,
+#               "contact": 1,
+#
+#    }
+# print(json.dumps(json1))
+# print(json1)
+# headers = {"Content-Type": "application/json", "Authorization": "Token 60e7daf91556195e794a9f460655fc5f6c3fc2ff"}
+# #
+# response = requests.post(url, data=json.dumps(json1), headers=headers)
 #
 # # -----------contact------------------------
 # url='http://127.0.0.1:8000/user/contact'

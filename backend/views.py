@@ -28,34 +28,37 @@ class PartnerUpdate(APIView):
     """
     Класс для обновления прайса от поставщика
     """
+
     def post(self, request, *args, **kwargs):
-            data = file_data_yaml()[0]
-            shop, _ = Shop.objects.get_or_create(name=data['shop'],)
-            for category in data['categories']:
-                category_object, _ = Category.objects.get_or_create(id=category['id'], name=category['name'])
-                category_object.shops.add(shop.id)
-                category_object.save()
-            ProductInfo.objects.filter(shop_id=shop.id).delete()
-            for item in data['goods']:
-                product, _ = Product.objects.get_or_create(name=item['name'], category_id=item['category'])
+        data = file_data_yaml()[0]
+        shop, _ = Shop.objects.get_or_create(name=data['shop'], )
+        for category in data['categories']:
+            category_object, _ = Category.objects.get_or_create(id=category['id'], name=category['name'])
+            category_object.shops.add(shop.id)
+            category_object.save()
+        ProductInfo.objects.filter(shop_id=shop.id).delete()
+        for item in data['goods']:
+            product, _ = Product.objects.get_or_create(name=item['name'], category_id=item['category'])
 
-                product_info = ProductInfo.objects.create(product_id=product.id,
-                                                          price=item['price'],
-                                                          price_rrc=item['price_rrc'],
-                                                          quantity=item['quantity'],
-                                                          shop_id=shop.id)
-                for name, value in item['parameters'].items():
-                    parameter_object, _ = Parameter.objects.get_or_create(name=name)
-                    ProductParameter.objects.create(product_info_id=product_info.id,
-                                                    parameter_id=parameter_object.id,
-                                                    value=value)
+            product_info = ProductInfo.objects.create(product_id=product.id,
+                                                      price=item['price'],
+                                                      price_rrc=item['price_rrc'],
+                                                      quantity=item['quantity'],
+                                                      shop_id=shop.id)
+            for name, value in item['parameters'].items():
+                parameter_object, _ = Parameter.objects.get_or_create(name=name)
+                ProductParameter.objects.create(product_info_id=product_info.id,
+                                                parameter_id=parameter_object.id,
+                                                value=value)
 
-            return JsonResponse({'Status': True})
+        return JsonResponse({'Status': True})
+
 
 class RegisterAccount(APIView):
     """
     Для регистрации покупателей
     """
+
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -91,18 +94,18 @@ class RegisterAccount(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-
 class LoginAccount(APIView):
     """
     Класс для авторизации пользователей
     """
+
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
 
         if {'email', 'password'}.issubset(request.data):
 
-            username=request.data['email']
-            password=request.data['password']
+            username = request.data['email']
+            password = request.data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 if user.is_active:
@@ -120,6 +123,7 @@ class ShopView(ListAPIView):
     """
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
+
 
 class ProductInfoView(APIView):
     """
@@ -148,12 +152,14 @@ class ProductInfoView(APIView):
 
         return Response(serializer.data)
 
+
 class CategoryView(ListAPIView):
     """
     Класс для просмотра категорий
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
 
 class BasketView(APIView):
     """
@@ -249,6 +255,7 @@ class BasketView(APIView):
                 return JsonResponse({'Status': True, 'Обновлено объектов': objects_updated})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+
 class PartnerState(APIView):
     """
     Класс для работы со статусом поставщика
@@ -283,10 +290,12 @@ class PartnerState(APIView):
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+
 class PartnerOrders(APIView):
     """
     Класс для получения заказов поставщиками
     """
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -376,8 +385,6 @@ class ContactView(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-
-
 class OrderView(APIView):
     """
     Класс для получения и размешения заказов пользователями
@@ -403,22 +410,20 @@ class OrderView(APIView):
 
         if {'id', 'contact'}.issubset(request.data):
             # if request.data['id'].isdigit():
-                try:
-                    is_updated = Order.objects.filter(
-                        user_id=request.user.id, id=request.data['id']).update(
-                        contact_id=request.data['contact'],
-                        state='new')
-                    print(request.user.id)
-                    print(request.data['contact'])
-                    print(is_updated)
-                except IntegrityError as error:
-                    print(error)
-                    return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
-                else:
-                    if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
-                        return JsonResponse({'Status': True})
+            try:
+                is_updated = Order.objects.filter(
+                    user_id=request.user.id, id=request.data['id']).update(
+                    contact_id=request.data['contact'],
+                    state='new')
+                print(request.user.id)
+                print(request.data['contact'])
+                print(is_updated)
+            except IntegrityError as error:
+                print(error)
+                return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
+            else:
+                if is_updated:
+                    new_order.send(sender=self.__class__, user_id=request.user.id)
+                    return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
-
-
