@@ -21,11 +21,8 @@ from backend.models import Shop, Category, Product, ProductInfo, Parameter, Prod
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.test import file_data_yaml
-from backend.task import send_mail
+from backend.task import send_mail, new_order
 
-
-# ----------------------------Посмотреть сигнал о регистрации!!!!!!!!!!!!--------
-# from backend.signal import new_user_registered, new_order
 
 
 class TaskViewGet(APIView):
@@ -443,7 +440,7 @@ class OrderView(APIView):
                 return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
             else:
                 if is_updated:
-                    # new_order.send(sender=self.__class__, user_id=request.user.id)
+                    new_order.delay(request.user.id)
                     return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
