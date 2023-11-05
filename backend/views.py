@@ -9,7 +9,9 @@ from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
 from requests import get
+from rest_framework import viewsets, permissions, renderers, status
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -311,6 +313,19 @@ class PartnerOrders(APIView):
 
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
+
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+
+    def create(self, request, *args, **kwargs):
+        request.data.update({'user': request.user.id})
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ContactView(APIView):
