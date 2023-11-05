@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from distutils.util import strtobool
 # Create your views here.
+from netology_pd_diplom.celery import get_result
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -20,8 +21,26 @@ from backend.models import Shop, Category, Product, ProductInfo, Parameter, Prod
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.test import file_data_yaml
+from backend.task import send_mail
+
+
 # ----------------------------Посмотреть сигнал о регистрации!!!!!!!!!!!!--------
-from backend.signal import new_user_registered, new_order
+# from backend.signal import new_user_registered, new_order
+
+
+class TaskViewGet(APIView):
+
+    def get(self, request, *args, **kwargs):
+        task_id = kwargs['task_id']
+        task_result = get_result(task_id)
+        return Response({'status': task_result.status, 'result': task_result.result})
+
+
+# class TaskViewCreate(APIView):
+#
+#     def post(self, request, *args, **kwargs):
+#         task = cpu_bound.delay()
+#         return Response({'task_id': task.id})
 
 
 class PartnerUpdate(APIView):
@@ -60,7 +79,7 @@ class RegisterAccount(APIView):
     """
 
     # Регистрация методом POST
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
         # проверяем обязательные аргументы
         if {'first_name', 'last_name', 'email', 'password', 'position'}.issubset(request.data):
@@ -78,7 +97,6 @@ class RegisterAccount(APIView):
                 return JsonResponse({'Status': False, 'Errors': {'password': error_array}})
             else:
                 # проверяем данные для уникальности имени пользователя
-                # request.data._mutable = True
                 request.data.update({})
                 user_serializer = UserSerializer(data=request.data)
                 if user_serializer.is_valid():
@@ -86,10 +104,12 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
-                    new_user_registered.send(sender=self.__class__, user_id=user.id)
-                    return JsonResponse({'Status': True})
-                else:
-                    return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
+                    task = send_mail.delay('Подтверждение почты', 'Вы зарегистрировались на сайте рога и копыта, '
+                                                                  'подтвердите свой адрес!', request.data['email'])
+                    print(task.id)
+                    return JsonResponse({'Status': True, 'task_id': task.id})
+                # else:
+                #     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
@@ -423,7 +443,7 @@ class OrderView(APIView):
                 return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
             else:
                 if is_updated:
-                    new_order.send(sender=self.__class__, user_id=request.user.id)
+                    # new_order.send(sender=self.__class__, user_id=request.user.id)
                     return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})

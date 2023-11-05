@@ -15,5 +15,7 @@ six==1.16.0
 sqlparse==0.4.2
 ujson==5.4.0
 urllib3==1.26.10
+celery
+
 
 
