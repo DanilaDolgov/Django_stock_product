@@ -24,7 +24,6 @@ from backend.test import file_data_yaml
 from backend.task import send_mail, new_order
 
 
-
 class TaskViewGet(APIView):
 
     def get(self, request, *args, **kwargs):
