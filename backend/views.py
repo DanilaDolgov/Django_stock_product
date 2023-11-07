@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from functools import wraps
 from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
@@ -15,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
@@ -24,6 +26,7 @@ from backend.serializers import UserSerializer, CategorySerializer, ShopSerializ
 from backend.test import file_data_yaml
 # ----------------------------Посмотреть сигнал о регистрации!!!!!!!!!!!!--------
 from backend.signal import new_user_registered, new_order
+from backend.permissions import IsOwnerOrReadOnly
 
 
 class PartnerUpdate(APIView):
@@ -315,17 +318,23 @@ class PartnerOrders(APIView):
         return Response(serializer.data)
 
 
+def login_required(func):
+    @wraps(func)
+    def wrapper(instance):
+        if not instance.request.user.is_authenticated:
+            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+        return func(instance)
+
+    return wrapper
+
+
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
-    def create(self, request, *args, **kwargs):
-        request.data.update({'user': request.user.id})
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class ContactView(APIView):

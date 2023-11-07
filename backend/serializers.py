@@ -4,23 +4,26 @@ from rest_framework import serializers
 from backend.models import User, Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
 
 
-class ContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = ('id', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'user', 'phone')
-        read_only_fields = ('id',)
-        extra_kwargs = {
-            'user': {'write_only': True}
-        }
-
-
 class UserSerializer(serializers.ModelSerializer):
-    # contacts = ContactSerializer(read_only=True, many=True)
+    # contacts = serializers.ContactSerializer(read_only=True, many=True)
+    # contacts = serializers.PrimaryKeyRelatedField(many=True, queryset=Contact.objects.all())
 
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'email', 'password', 'position',)
         read_only_fields = ('id',)
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = Contact
+        fields = ('id', 'city', 'street', 'house', 'structure', 'building', 'apartment', 'phone', 'owner')
+        read_only_fields = ('id',)
+        extra_kwargs = {
+            'user': {'write_only': True}
+        }
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -33,7 +36,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ('id', 'name', )
+        fields = ('id', 'name',)
         read_only_fields = ('id',)
 
 

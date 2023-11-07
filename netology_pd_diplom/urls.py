@@ -15,7 +15,7 @@ urlpatterns = [
     # path('user/details', AccountDetails.as_view(), name='user-details'),
     path('user/contact', ContactView.as_view(), name='user-contact'),
     path('user/contactsviewset/<int:pk>',
-         ContactViewSet.as_view({'get':'retrieve', 'delete': 'destroy'})),
+         ContactViewSet.as_view({'get': 'retrieve', 'delete': 'destroy', 'put': 'update'})),
     path('user/contactsviewset',
          ContactViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('user/login', LoginAccount.as_view(), name='user-login'),
