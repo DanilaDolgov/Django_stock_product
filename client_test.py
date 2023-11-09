@@ -58,7 +58,7 @@ import json
 #    }
 # print(json.dumps(json1))
 # print(json1)
-# headers = {"Content-Type": "application/json", "Authorization": "Token d584a670eea7807b7d1db9edaf8f877eea82169a"}
+# headers = {"Content-Type": "application/json", "Authorization": "Token 3f7e68b155f051e9614e0ecd04152564b2104b22"}
 #
 # response = requests.post(url, data=json.dumps(json1), headers=headers)
 
@@ -107,8 +107,8 @@ import json
 # #Регистрация пользователя
 # response = requests.post(
 #     'http://127.0.0.1:8000/user/register',
-#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'danilevich23555@yandex.ru',
-#           'password': 'wishoting24200956dDv1b2n3z0', 'position': 'референт'})
+#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'matushinoleg24d4D5@yandex.ru',
+#           'password': 'wishoting', 'position': 'референт'})
 #
 #
 # response = requests.post(

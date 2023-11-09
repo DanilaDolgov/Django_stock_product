@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from distutils.util import strtobool
+
+from backend.permissions import IsOwnerOrReadOnly
 # Create your views here.
 from netology_pd_diplom.celery import get_result
 from django.contrib.auth import authenticate
