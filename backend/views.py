@@ -318,16 +318,6 @@ class PartnerOrders(APIView):
         return Response(serializer.data)
 
 
-def login_required(func):
-    @wraps(func)
-    def wrapper(instance):
-        if not instance.request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-        return func(instance)
-
-    return wrapper
-
-
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer

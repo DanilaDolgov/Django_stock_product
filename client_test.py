@@ -76,28 +76,28 @@ import json
 #
 # response = requests.delete(url, headers=headers)
 # --------------get CONTACT--------------------------
-# url='http://127.0.0.1:8000/user/contactsviewset/3'
+# url='http://127.0.0.1:8000/user/contactsviewset/4'
 #
 # headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
 #
 # response = requests.get(url, headers=headers)
 # print(response.json())
 
-url = 'http://127.0.0.1:8000/user/contactsviewset/3'
-
-json1 = {
-    "city": "Бишкек",
-    "street": "Большая",
-    "house": "25",
-    "structure": "8",
-    "apartment": "681",
-    "phone": "79175066114"
-}
-print(json.dumps(json1))
-print(json1)
-headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
-
-response = requests.put(url, data=json.dumps(json1), headers=headers)
+# url = 'http://127.0.0.1:8000/user/contactsviewset/3'
+#
+# json1 = {
+#     "city": "Бишкек",
+#     "street": "Большая",
+#     "house": "25",
+#     "structure": "8",
+#     "apartment": "681",
+#     "phone": "79175066114"
+# }
+# print(json.dumps(json1))
+# print(json1)
+# headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
+#
+# response = requests.put(url, data=json.dumps(json1), headers=headers)
 #
 #
 # # response = requests.get(
