@@ -47,21 +47,56 @@ import json
 # response = requests.post(url, data=json.dumps(json1), headers=headers)
 #
 # # -----------contact------------------------
-# url='http://127.0.0.1:8000/user/contact'
+# url='http://127.0.0.1:8000/user/contactsviewset'
 # json1={
-#               "user_id": 1,
-#               "city": "Москва",
-#               "street": "Большая филевская",
-#               "house": "23",
-#               "structure": "4",
+#               "city": "Москв",
+#               "street": "Большая",
+#               "house": "25",
+#               "structure": "8",
 #               "apartment": "681",
 #               "phone": "79175066114"
 #    }
 # print(json.dumps(json1))
 # print(json1)
-# headers = {"Content-Type": "application/json", "Authorization": "Token 60e7daf91556195e794a9f460655fc5f6c3fc2ff"}
-
+# headers = {"Content-Type": "application/json", "Authorization": "Token d584a670eea7807b7d1db9edaf8f877eea82169a"}
+#
 # response = requests.post(url, data=json.dumps(json1), headers=headers)
+
+
+# --------------DELETE CONTACT--------------------------
+# url='http://127.0.0.1:8000/user/contactsviewset/6'
+# json1={
+#     "items": str("1")
+#
+#    }
+# print(json.dumps(json1))
+# print(json1)
+# headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
+#
+# response = requests.delete(url, headers=headers)
+# --------------get CONTACT--------------------------
+# url='http://127.0.0.1:8000/user/contactsviewset/4'
+#
+# headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
+#
+# response = requests.get(url, headers=headers)
+# print(response.json())
+
+# url = 'http://127.0.0.1:8000/user/contactsviewset/3'
+#
+# json1 = {
+#     "city": "Бишкек",
+#     "street": "Большая",
+#     "house": "25",
+#     "structure": "8",
+#     "apartment": "681",
+#     "phone": "79175066114"
+# }
+# print(json.dumps(json1))
+# print(json1)
+# headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
+#
+# response = requests.put(url, data=json.dumps(json1), headers=headers)
 #
 #
 # # response = requests.get(
@@ -70,10 +105,10 @@ import json
 #
 #
 # #Регистрация пользователя
-response = requests.post(
-    'http://127.0.0.1:8000/user/register',
-    json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'danilevich23555@yandex.ru',
-          'password': 'wishoting24200956dDv1b2n3z0', 'position': 'референт'})
+# response = requests.post(
+#     'http://127.0.0.1:8000/user/register',
+#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'danilevich23555@yandex.ru',
+#           'password': 'wishoting24200956dDv1b2n3z0', 'position': 'референт'})
 #
 #
 # response = requests.post(
