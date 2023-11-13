@@ -1,10 +1,10 @@
 import requests
 import json
 # # Авторизация пользователя
-# response = requests.post(
-#     'http://127.0.0.1:8000/user/login',
-#     json={ 'email': 'danilevich23555@yandex.ru',
-#           'password': 'wishoting24200956dDv1b2n3z0',})
+response = requests.post(
+    'http://127.0.0.1:8000/user/login',
+    json={ 'email': 'matushinoleg@yandex.ru',
+          'password': 'wishoting',})
 #
 #
 # # Работа с корзиной
@@ -107,7 +107,7 @@ import json
 # #Регистрация пользователя
 # response = requests.post(
 #     'http://127.0.0.1:8000/user/register',
-#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'matushinoleg24d4D5@yandex.ru',
+#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'matushinoleg@yandex.ru',
 #           'password': 'wishoting', 'position': 'референт'})
 #
 #

@@ -23,6 +23,9 @@ class CustomUserAdmin(UserAdmin):
     ordering = ['first_name']
 
 
+
+
+
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
     model = Shop
