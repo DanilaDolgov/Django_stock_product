@@ -142,9 +142,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CodeLogin_app/settings.py
 
-# AUTHENTICATION_BACKENDS = (
-#     "allauth.account.auth_backends.AuthenticationBackend",
-# )
+AUTHENTICATION_BACKENDS = (
+    "backend.views.LoginAccount",
+)
 
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
