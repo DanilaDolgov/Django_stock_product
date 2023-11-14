@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'rest_framework',
     'rest_framework.authtoken',
-    'netology_pd_diplom',
     'drf_spectacular',
 
     'backend',
