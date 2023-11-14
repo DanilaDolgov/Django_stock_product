@@ -5,12 +5,14 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from backend.cooke import set_cookie, show_cookie
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, ProductInfoView, ShopView, CategoryView, \
-    BasketView, ContactView, OrderView, PartnerOrders, ContactViewSet, TaskViewGet
+    BasketView, ContactView, OrderView, PartnerOrders, ContactViewSet, TaskViewGet, Home
 
 app_name = 'backend'
 urlpatterns = [
+    path("", Home.as_view(), name="home"),
     path('task/<task_id>', TaskViewGet.as_view()),
-path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path("accounts/", include("allauth.urls")),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('partner/update', PartnerUpdate.as_view(), name='partner-update'),
     # path('partner/state', PartnerState.as_view(), name='partner-state'),
