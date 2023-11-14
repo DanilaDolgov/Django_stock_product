@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from distutils.util import strtobool
-
+from django.contrib.auth.backends import ModelBackend
 from backend.permissions import IsOwnerOrReadOnly
 # Create your views here.
 from netology_pd_diplom.celery import get_result
@@ -122,7 +122,7 @@ class RegisterAccount(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-class LoginAccount(APIView):
+class LoginAccount(APIView, ModelBackend):
     """
     Класс для авторизации пользователей
     """
@@ -134,7 +134,7 @@ class LoginAccount(APIView):
 
             username = request.data['email']
             password = request.data['password']
-            user = authenticate(request, username=username, password=password)
+            user = self.authenticate(request, username=username, password=password)
             if user is not None:
                 if user.is_active:
                     token, _ = Token.objects.get_or_create(user=user)
