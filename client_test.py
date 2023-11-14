@@ -3,8 +3,8 @@ import json
 # # Авторизация пользователя
 response = requests.post(
     'http://127.0.0.1:8000/user/login',
-    json={ 'email': 'matushinoleg@yandex.ru',
-          'password': 'wishoting',})
+    json={ 'email': 'admindD@gmail.com',
+          'password': 'wishdD',})
 #
 #
 # # Работа с корзиной
