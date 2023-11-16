@@ -1,10 +1,10 @@
 import requests
 import json
 # # Авторизация пользователя
-response = requests.post(
-    'http://127.0.0.1:8000/user/login',
-    json={ 'email': 'admindD@gmail.com',
-          'password': 'wishdD',})
+# response = requests.post(
+#     'http://127.0.0.1:8000/user/login',
+#     json={ 'email': 'admindD@gmail.com',
+#           'password': 'wishdD',})
 #
 #
 # # Работа с корзиной
@@ -82,8 +82,8 @@ response = requests.post(
 # response = requests.get(url, headers=headers)
 # print(response.json())
 
-# url = 'http://127.0.0.1:8000/user/contactsviewset/3'
-#
+# url = 'http://127.0.0.1:8000/user/contactsviewset'
+# #
 # json1 = {
 #     "city": "Бишкек",
 #     "street": "Большая",
@@ -94,9 +94,9 @@ response = requests.post(
 # }
 # print(json.dumps(json1))
 # print(json1)
-# headers = {"Content-Type": "application/json", "Authorization": "Token ef08d16260be0c534ee227aac456f3ce9866ce2b"}
+# headers = {"Content-Type": "application/json", "Authorization": "Token 783551d0caea601689074f54ffa53e70dc3a7769"}
 #
-# response = requests.put(url, data=json.dumps(json1), headers=headers)
+# response = requests.post(url, data=json.dumps(json1), headers=headers)
 #
 #
 # # response = requests.get(
@@ -105,10 +105,10 @@ response = requests.post(
 #
 #
 # #Регистрация пользователя
-# response = requests.post(
-#     'http://127.0.0.1:8000/user/register',
-#     json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'matushinoleg@yandex.ru',
-#           'password': 'wishoting', 'position': 'референт'})
+response = requests.post(
+    'http://127.0.0.1:8000/user/register',
+    json={'first_name': 'Данила', 'last_name': 'Долгов', 'email': 'matushin@yandex.ru',
+          'password': 'wishoting', 'position': 'референт'})
 #
 #
 # response = requests.post(

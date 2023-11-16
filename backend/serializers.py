@@ -4,6 +4,15 @@ from rest_framework import serializers
 from backend.models import User, Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
 
 
+class DummyDetailSerializer(serializers.Serializer):
+    status = serializers.IntegerField()
+
+
+class DummyDetailAndStatusSerializer(serializers.Serializer):
+    status = serializers.IntegerField()
+    details = serializers.CharField()
+
+
 class UserSerializer(serializers.ModelSerializer):
     # contacts = serializers.ContactSerializer(read_only=True, many=True)
     # contacts = serializers.PrimaryKeyRelatedField(many=True, queryset=Contact.objects.all())

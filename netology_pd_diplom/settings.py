@@ -45,10 +45,9 @@ INSTALLED_APPS = [
 
     'backend',
 
-    'allauth',  # new
-    'allauth.account',  # new
-    'allauth.socialaccount',  # new
-    # github
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
 ]
 
@@ -60,7 +59,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
 
 ROOT_URLCONF = 'netology_pd_diplom.urls'
 
@@ -142,7 +144,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CodeLogin_app/settings.py
 
 AUTHENTICATION_BACKENDS = (
-    "backend.views.LoginAccount",
+    'backend.views.LoginAccount',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 SITE_ID = 1
@@ -171,7 +174,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES':
         {
             'user': '10/minute',
-            'anon': '2/minute',
+            'anon': '50/minute',
         },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 40,

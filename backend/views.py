@@ -20,11 +20,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from ujson import loads as load_json
-from yaml import load as load_yaml, Loader
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, extend_schema_view, OpenApiResponse
+from netology_pd_diplom.schema import TokenScheme
+from drf_spectacular.types import OpenApiTypes
 from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
-    OrderItemSerializer, OrderSerializer, ContactSerializer
+    OrderItemSerializer, OrderSerializer, ContactSerializer, DummyDetailSerializer, DummyDetailAndStatusSerializer
 from backend.test import file_data_yaml
 from backend.task import send_mail, new_order
 # CodeLogin_app/views.py
@@ -56,6 +58,7 @@ class PartnerUpdate(APIView):
     Класс для обновления прайса от поставщика
     """
 
+    @extend_schema(summary="Добавление нового прайса от поставщика.")
     def post(self, request, *args, **kwargs):
         data = file_data_yaml()[0]
         shop, _ = Shop.objects.get_or_create(name=data['shop'], )
@@ -81,6 +84,39 @@ class PartnerUpdate(APIView):
         return JsonResponse({'Status': True})
 
 
+@extend_schema_view(post=extend_schema(summary="Регистрация нового пользователя на сервисе.",
+                                       description="""Для регистрации пользователя необходимо отправить post запрос на данный url с параметрами
+        {'first_name': 'Имя пользователя', 'last_name': 'Фамилия пользователя', 'email': 'Адрес электронной почты', 
+        'password': 'Пароль'}. после регистрации на сервисе необходимо данного пользователя авторизировать и 
+        получить token.""", request=UserSerializer,
+                                       responses={
+                                           status.HTTP_200_OK: UserSerializer,
+                                           status.HTTP_400_BAD_REQUEST: DummyDetailSerializer,
+                                           status.HTTP_401_UNAUTHORIZED: DummyDetailSerializer,
+                                           status.HTTP_403_FORBIDDEN: DummyDetailAndStatusSerializer,
+                                       },
+                                       parameters=[OpenApiParameter(name='first_name',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=False),
+                                                   OpenApiParameter(name='last_name',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=False),
+                                                   OpenApiParameter(name='email',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=False),
+                                                   OpenApiParameter(name='password',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=False),
+                                                   OpenApiParameter(name='position',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=False)
+                                                   ]
+                                       ))
 class RegisterAccount(APIView):
     """
     Для регистрации покупателей
@@ -114,19 +150,44 @@ class RegisterAccount(APIView):
                     user.save()
                     task = send_mail.delay('Подтверждение почты', 'Вы зарегистрировались на сайте рога и копыта, '
                                                                   'подтвердите свой адрес!', request.data['email'])
-                    print(task.id)
-                    return JsonResponse({'Status': True, 'task_id': task.id})
+                    return JsonResponse({'Status': True,
+                                         'data': 'Пользователь с данными '
+                                                 + f"{user.first_name, user.last_name, user.email}"
+                                                 + ' успешно зарегистрирован!'})
                 # else:
                 #     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
+@extend_schema_view(post=extend_schema(summary="Авторизация нового пользователя на сервисе.",
+                                       description="""Для авторизации пользователя необходимо отправить post запрос 
+                                       на данный url с параметрами json = {'email': 'Адрес электронной почты', 
+                                       'password': 'Пароль'} уже зарегистрированного пользователя. для проверки авторизации
+                                       добавить одного пользователя, в противном случае""",
+                                       request=UserSerializer,
+                                       responses={
+                                           status.HTTP_200_OK: UserSerializer,
+                                           status.HTTP_400_BAD_REQUEST: DummyDetailSerializer,
+                                           status.HTTP_401_UNAUTHORIZED: DummyDetailSerializer,
+                                           status.HTTP_403_FORBIDDEN: DummyDetailAndStatusSerializer,
+                                       },
+                                       parameters=[OpenApiParameter(name='email',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=True),
+                                                   OpenApiParameter(name='password',
+                                                                    location=OpenApiParameter.QUERY,
+                                                                    type=str,
+                                                                    required=True),
+                                                   ]
+                                       ))
 class LoginAccount(APIView, ModelBackend):
     """
     Класс для авторизации пользователей
     """
 
+    @extend_schema(summary="Авторизация нового пользователя на сервисе и получение token.")
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
 
@@ -145,10 +206,12 @@ class LoginAccount(APIView, ModelBackend):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
+@extend_schema(summary="Просмотр информации о магазинах.")
 class ShopView(ListAPIView):
     """
     Класс для просмотра списка магазинов
     """
+
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
 
@@ -158,6 +221,7 @@ class ProductInfoView(APIView):
     Класс для поиска товаров
     """
 
+    @extend_schema(summary="Просмотр всех товаров и категорий в магазине.")
     def get(self, request, *args, **kwargs):
 
         query = Q(shop__state=True)
@@ -181,6 +245,7 @@ class ProductInfoView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(summary="Просмотр информации о категории товаров.")
 class CategoryView(ListAPIView):
     """
     Класс для просмотра категорий
@@ -194,6 +259,7 @@ class BasketView(APIView):
     Класс для работы с корзиной пользователя
     """
 
+    @extend_schema(summary="Просмотр корзины пользователя.")
     # получить корзину
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -207,6 +273,7 @@ class BasketView(APIView):
         serializer = OrderSerializer(basket, many=True)
         return Response(serializer.data)
 
+    @extend_schema(summary="Редактирование корзины пользователя.")
     # редактировать корзину
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -239,6 +306,7 @@ class BasketView(APIView):
                 return JsonResponse({'Status': True, 'Создано объектов': objects_created})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+    @extend_schema(summary="Удаление товаров из корзины пользователя.")
     # удалить товары из корзины
     def delete(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -260,6 +328,7 @@ class BasketView(APIView):
                 return JsonResponse({'Status': True, 'Удалено объектов': deleted_count})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
+    @extend_schema(summary="Добавление товаров в корзину пользователя.")
     # добавить позиции в корзину
     def put(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -324,6 +393,7 @@ class PartnerOrders(APIView):
     Класс для получения заказов поставщиками
     """
 
+    @extend_schema(summary="Получение заказов поставщиками.")
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -341,6 +411,65 @@ class PartnerOrders(APIView):
         return Response(serializer.data)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Информация по контактам пользователя.",
+    ),
+    update=extend_schema(
+        summary="Изменение контактной информации пользователя.",
+    ),
+    create=extend_schema(
+        summary="Добавление новой контактной информации пользователя.",
+        description="""Для добавления контактной информации пользователя необходимо отправить на указанный url json={
+              "city": "Город",
+              "street": "Улица",
+              "house": "Дом",
+              "structure": "Корпус",
+              "apartment": "Квартира",
+              "phone": "Телефон"
+   } со следующими заголовками headers = {"Content-Type": "application/json", 
+   "Authorization": "Token 3f7e68b155f051e9614e0ecd04152564b2104b22"} где Token выдан при авторизации пользователя.""",
+        responses={
+            status.HTTP_201_CREATED: ContactSerializer,
+            status.HTTP_400_BAD_REQUEST: DummyDetailSerializer,
+            status.HTTP_401_UNAUTHORIZED: DummyDetailSerializer,
+            status.HTTP_403_FORBIDDEN: DummyDetailAndStatusSerializer,
+        },
+        parameters=[
+            OpenApiParameter(name='city',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+            OpenApiParameter(name='street',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+            OpenApiParameter(name='house',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+            OpenApiParameter(name='structure',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+            OpenApiParameter(name='apartment',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+            OpenApiParameter(name='phone',
+                             location=OpenApiParameter.QUERY,
+                             type=str,
+                             required=True),
+        ]
+    ),
+    destroy=extend_schema(
+        summary="Удаление контактной информации пользователя.",
+    ),
+    retrieve=extend_schema(
+        summary="Вывод одной из контактной информации пользователя.",
+    ),
+
+)
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -350,76 +479,80 @@ class ContactViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class ContactView(APIView):
-    """
-    Класс для работы с контактами покупателей
-    """
-
-    # получить мои контакты
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-        contact = Contact.objects.filter(
-            user_id=request.user.id)
-        serializer = ContactSerializer(contact, many=True)
-        return Response(serializer.data)
-
-    # добавить новый контакт
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
-        if {'city', 'street', 'phone'}.issubset(request.data):
-            # request.data._mutable = True
-            request.data.update({'user': request.user.id})
-            serializer = ContactSerializer(data=request.data)
-
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse({'Status': True})
-            else:
-                JsonResponse({'Status': False, 'Errors': serializer.errors})
-
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
-
-    # удалить контакт
-    def delete(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
-        items_sting = request.data.get('items')
-        if items_sting:
-            items_list = items_sting.split(',')
-            query = Q()
-            objects_deleted = False
-            for contact_id in items_list:
-                if contact_id.isdigit():
-                    query = query | Q(user_id=request.user.id, id=contact_id)
-                    objects_deleted = True
-
-            if objects_deleted:
-                deleted_count = Contact.objects.filter(query).delete()[0]
-                return JsonResponse({'Status': True, 'Удалено объектов': deleted_count})
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
-
-    # редактировать контакт
-    def put(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
-        if 'id' in request.data:
-            if request.data['id'].isdigit():
-                contact = Contact.objects.filter(id=request.data['id'], user_id=request.user.id).first()
-                print(contact)
-                if contact:
-                    serializer = ContactSerializer(contact, data=request.data, partial=True)
-                    if serializer.is_valid():
-                        serializer.save()
-                        return JsonResponse({'Status': True})
-                    else:
-                        JsonResponse({'Status': False, 'Errors': serializer.errors})
-
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+# class ContactView(APIView):
+#     """
+#     Класс для работы с контактами покупателей
+#     """
+#
+#     @extend_schema(summary="Получение информации о контактах пользователя.")
+#     # получить мои контакты
+#     def get(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+#         contact = Contact.objects.filter(
+#             user_id=request.user.id)
+#         serializer = ContactSerializer(contact, many=True)
+#         return Response(serializer.data)
+#
+#     @extend_schema(summary="Добавление новой контактной информации пользователя.")
+#     # добавить новый контакт
+#     def post(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+#
+#         if {'city', 'street', 'phone'}.issubset(request.data):
+#             # request.data._mutable = True
+#             request.data.update({'user': request.user.id})
+#             serializer = ContactSerializer(data=request.data)
+#
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return JsonResponse({'Status': True})
+#             else:
+#                 JsonResponse({'Status': False, 'Errors': serializer.errors})
+#
+#         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+#
+#     @extend_schema(summary="Удаление контактной информации пользователя.")
+#     # удалить контакт
+#     def delete(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+#
+#         items_sting = request.data.get('items')
+#         if items_sting:
+#             items_list = items_sting.split(',')
+#             query = Q()
+#             objects_deleted = False
+#             for contact_id in items_list:
+#                 if contact_id.isdigit():
+#                     query = query | Q(user_id=request.user.id, id=contact_id)
+#                     objects_deleted = True
+#
+#             if objects_deleted:
+#                 deleted_count = Contact.objects.filter(query).delete()[0]
+#                 return JsonResponse({'Status': True, 'Удалено объектов': deleted_count})
+#         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+#
+#     @extend_schema(summary="Изменение контактной информации пользователя.")
+#     # редактировать контакт
+#     def put(self, request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+#
+#         if 'id' in request.data:
+#             if request.data['id'].isdigit():
+#                 contact = Contact.objects.filter(id=request.data['id'], user_id=request.user.id).first()
+#                 print(contact)
+#                 if contact:
+#                     serializer = ContactSerializer(contact, data=request.data, partial=True)
+#                     if serializer.is_valid():
+#                         serializer.save()
+#                         return JsonResponse({'Status': True})
+#                     else:
+#                         JsonResponse({'Status': False, 'Errors': serializer.errors})
+#
+#         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
 class OrderView(APIView):
@@ -427,6 +560,7 @@ class OrderView(APIView):
     Класс для получения и размешения заказов пользователями
     """
 
+    @extend_schema(summary="Получение всех заказов пользователей.")
     # получить мои заказы
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -440,6 +574,7 @@ class OrderView(APIView):
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
 
+    @extend_schema(summary="Размещение заказа из корзины пользователя.")
     # разместить заказ из корзины
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
