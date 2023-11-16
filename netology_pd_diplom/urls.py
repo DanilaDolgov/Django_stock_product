@@ -5,7 +5,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from backend.cooke import set_cookie, show_cookie
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, ProductInfoView, ShopView, CategoryView, \
-    BasketView, ContactView, OrderView, PartnerOrders, ContactViewSet, TaskViewGet, Home
+    BasketView, OrderView, PartnerOrders, ContactViewSet, TaskViewGet, Home
 
 app_name = 'backend'
 urlpatterns = [
@@ -20,7 +20,7 @@ urlpatterns = [
     path('user/register', RegisterAccount.as_view(), name='user-register'),
     # path('user/register/confirm', ConfirmAccount.as_view(), name='user-register-confirm'),
     # path('user/details', AccountDetails.as_view(), name='user-details'),
-    path('user/contact', ContactView.as_view(), name='user-contact'),
+    # path('user/contact', ContactView.as_view(), name='user-contact'),
     path('user/contactsviewset/<int:pk>',
          ContactViewSet.as_view({'get': 'retrieve', 'delete': 'destroy', 'put': 'update'})),
     path('user/contactsviewset',
